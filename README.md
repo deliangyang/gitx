@@ -23,7 +23,7 @@ Available Commands:
   clone       Clone a repository
   completion  Generate the autocompletion script for the specified shell
   doc         Show documentation
-  fetch       Merge stable branch into current feat branch, like merge stable into feat-3.4.0
+  fetch       Merge main branch into current feat branch, like merge main into feat-3.4.0
   help        Help about any command
   install     Install gitx tool
   rename      Rename current project directory
@@ -69,7 +69,7 @@ gitx clone <repository_url> <version> <branch> [-b <base_branch>]
 例如：
 
 ```bash
-gitx clone git@github.com:deliangyang/gitx.git feat-3.4.0 new-dev              # 默认分支 stable
+gitx clone git@github.com:deliangyang/gitx.git feat-3.4.0 new-dev              # 默认分支 main
 gitx clone git@github.com:deliangyang/gitx.git feat-3.4.0 new-dev -b main      # 指定源分支 main
 ``` 
 
@@ -86,7 +86,7 @@ gitx sync
 基于当前目录的特征 (api-site-feat-3.4.0-new-dev)，将稳定分支合并到当前的 feat 分支。
 
 ```bash
-gitx fetch                      # 默认分支 stable
+gitx fetch                      # 默认分支 main
 
 gitx fetch -b main              # 指定源分支 main
 ```
@@ -95,7 +95,7 @@ gitx fetch -b main              # 指定源分支 main
 选择常用项目进行克隆。
 
 ```bash
-gitx select                     # 使用默认分支 stable
+gitx select                     # 使用默认分支 main
 gitx select -b main             # 指定源分支 main
 ```
 

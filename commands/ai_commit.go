@@ -23,7 +23,7 @@ var githubPrompt string
 //go:embed prompts/default.prompt
 var defaultPrompt string
 
-var limitedLen = 4000
+var limitedLen = 10000
 
 func init() {
 	AICommitCmd.Flags().BoolVarP(&aiConfirm, "yes", "y", false, "Auto confirm AI generated commit message")

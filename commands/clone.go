@@ -11,11 +11,11 @@ import (
 )
 
 var (
-	stableBranch string
+	mainBranch string
 )
 
 func init() {
-	CloneCmd.Flags().StringVarP(&stableBranch, "branch", "b", "main", "Stable branch name, default is 'stable'")
+	CloneCmd.Flags().StringVarP(&mainBranch, "branch", "b", "main", "Main branch name, default is 'main'")
 	CloneCmd.Flags().StringVarP(&workspaceDir, "workspace", "w", workspaceDir, "Workspace directory")
 
 }
@@ -76,21 +76,21 @@ func cloneRepository(repoURL, version, branch string) {
 		execCommand("git", "clone", repoURL, repoPath)
 	}
 	execCommand("git", "-C", repoPath, "fetch", "--all")
-	if !branchExists(repoPath, stableBranch) {
-		errLog("Stable branch does not exist: %s, user can specify it with --branch|-b", stableBranch)
+	if !branchExists(repoPath, mainBranch) {
+		errLog("Main branch does not exist: %s, user can specify it with --branch|-b", mainBranch)
 		os.Exit(1)
 	}
-	execCommand("git", "-C", repoPath, "checkout", stableBranch)
-	execCommand("git", "-C", repoPath, "pull", "origin", stableBranch)
+	execCommand("git", "-C", repoPath, "checkout", mainBranch)
+	execCommand("git", "-C", repoPath, "pull", "origin", mainBranch)
 	if branchExists(repoPath, version) {
 		execCommand("git", "-C", repoPath, "checkout", version)
 		// pull latest changes
 		execCommand("git", "-C", repoPath, "pull", "origin", version)
-		// merge stable into feat branch
+		// merge main into feat branch
 		execCommand("git", "-C", repoPath, "merge", "--no-ff", "-m",
-			fmt.Sprintf("[Branch Merge] Merge %s into %s", stableBranch, version), stableBranch)
+			fmt.Sprintf("[Branch Merge] Merge %s into %s", mainBranch, version), mainBranch)
 	} else {
-		execCommand("git", "-C", repoPath, "checkout", "-b", version, stableBranch)
+		execCommand("git", "-C", repoPath, "checkout", "-b", version, mainBranch)
 	}
 	execCommand("git", "-C", repoPath, "push", "--set-upstream", "origin", version)
 	successLog("project dir is: [" + repoPath + "]")

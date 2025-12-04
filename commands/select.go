@@ -6,7 +6,7 @@ import (
 )
 
 func init() {
-	SelectCmd.Flags().StringVarP(&stableBranch, "branch", "b", "stable", "Stable branch name, default is 'stable'")
+	SelectCmd.Flags().StringVarP(&mainBranch, "branch", "b", "main", "Main branch name, default is 'main'")
 }
 
 var SelectCmd = &cobra.Command{
