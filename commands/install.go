@@ -8,5 +8,6 @@ var InstallCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		execCommand("go", "install", "github.com/deliangyang/gitx@latest")
 		successLog("gitx installed successfully.")
+		execCommand("gitx", "--version")
 	},
 }

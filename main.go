@@ -8,7 +8,7 @@ import (
 )
 
 var (
-	version = "v0.1.2"
+	version = "v1.0.0"
 	rootCmd = &cobra.Command{
 		Use:   "gitx",
 		Short: "A CLI tool for advanced Git operations",
