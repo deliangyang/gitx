@@ -23,13 +23,15 @@ var githubPrompt string
 //go:embed prompts/default.prompt
 var defaultPrompt string
 
+var limitedLen = 4000
+
 func init() {
 	AICommitCmd.Flags().BoolVarP(&aiConfirm, "yes", "y", false, "Auto confirm AI generated commit message")
 }
 
 var AICommitCmd = &cobra.Command{
 	Use:       "am [default|github]",
-	Short:     "Generate AI-based commit messages, then push to remote, limit to 4000 characters diff",
+	Short:     fmt.Sprintf("Generate AI-based commit messages, then push to remote, limit to %d characters diff", limitedLen),
 	ValidArgs: []string{"default", "github"},
 	Run: func(cmd *cobra.Command, args []string) {
 		if os.Getenv("OPENAI_API_KEY") == "" {
@@ -54,8 +56,8 @@ var AICommitCmd = &cobra.Command{
 		if diff == "" {
 			warningLog("use `git add .` first")
 			errLog("No changes detected.")
-		} else if len(diff) > 140000 {
-			warningLog("diff is too large (>140000 characters), please commit manually")
+		} else if len(diff) > limitedLen {
+			warningLog(fmt.Sprintf("diff is too large (>%d characters), please commit manually", limitedLen))
 			errLog("Diff too large.")
 		}
 		sp := defaultPrompt
