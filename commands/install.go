@@ -1,8 +1,6 @@
 package commands
 
 import (
-	"strings"
-
 	"github.com/spf13/cobra"
 )
 
@@ -12,7 +10,6 @@ var InstallCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		execCommand("go", "install", "github.com/deliangyang/gitx@latest")
 		successLog("gitx installed successfully.")
-		version := execCommandWithOutput("gitx", "--version")
-		successLog("gitx version: %s", strings.TrimSpace(version))
+		execCommand("gitx", "--version")
 	},
 }
