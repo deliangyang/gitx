@@ -138,7 +138,7 @@ gitx config set <key> <value>  # 设置配置项
 
 ## doc 命令
 
-显示文档链接：[https://github.com/deliangyang/gitx/-/tree/main?ref_type=heads#%E5%8A%9F%E8%83%BD](https://github.com/deliangyang/gitx/-/tree/main?ref_type=heads#%E5%8A%9F%E8%83%BD)
+显示文档链接：[https://github.com/deliangyang/gitx/blob/main/README.md](https://github.com/deliangyang/gitx/blob/main/README.md)
 
 ## 版本
 查看当前工具的版本：
