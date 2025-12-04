@@ -19,9 +19,10 @@ Usage:
   gitx [command]
 
 Available Commands:
-  am          Generate AI-based commit messages, then push to remote, limit to 4000 characters diff
+  am          Generate AI-based commit messages, then push to remote, limit to 10000 characters diff
   clone       Clone a repository
   completion  Generate the autocompletion script for the specified shell
+  config      Configure gitx settings
   doc         Show documentation
   fetch       Merge main branch into current feat branch, like merge main into feat-3.4.0
   help        Help about any command
@@ -74,7 +75,7 @@ gitx clone git@github.com:deliangyang/gitx.git feat-3.4.0 new-dev -b main      #
 ``` 
 
 ## sync 命令
-基于当前目录的特征 (api-site-feat-3.4.0-new-dev)，将指定的 feat 分支合并到目标分支。
+基于当前目录的特征 (deliangyang-gitx-feat-3.4.0-new-dev)，将指定的 feat 分支合并到目标分支。
 
 ```bash
 gitx sync
@@ -83,7 +84,7 @@ gitx sync
 
 ## fetch 命令
 
-基于当前目录的特征 (api-site-feat-3.4.0-new-dev)，将稳定分支合并到当前的 feat 分支。
+基于当前目录的特征 (deliangyang-gitx-feat-3.4.0-new-dev)，将稳定分支合并到当前的 feat 分支。
 
 ```bash
 gitx fetch                      # 默认分支 main
@@ -105,11 +106,11 @@ gitx select -b main             # 指定源分支 main
 
 ```bash
 pwd
-# api-site-feat-1.2.0-new-dev
+# deliangyang-gitx-feat-1.2.0-new-dev
 gitx rename feat-1.3.0    # 当前版本为 feat-1.2.0，则重命名为 feat-1.3.0
 
 pwd
-# api-site-feat-1.3.0-new-dev
+# deliangyang-gitx-feat-1.3.0-new-dev
 ```
 
 ## use 命令
