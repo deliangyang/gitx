@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"path"
 	"strings"
 
 	"github.com/openai/openai-go/v3"
@@ -38,20 +37,6 @@ var AICommitCmd = &cobra.Command{
 			warningLog("OPENAI_API_KEY environment variable is not set.")
 			return
 		}
-		pwd, err := os.Getwd()
-		if err != nil {
-			errLog("failed to get current working directory: %v", err)
-		}
-		dir := path.Base(pwd)
-		if !regexpProject.MatchString(dir) {
-			errLog("current directory is not a valid project directory")
-		}
-		matches := regexpProject.FindStringSubmatch(dir)
-		if isDebug {
-			log.Printf("matches: [%s]\n", strings.Join(matches, ", "))
-		}
-		version := matches[1]
-
 		diff := execCommandWithOutput("git", "diff", "--cached")
 		if diff == "" {
 			warningLog("use `git add .` first")
@@ -94,7 +79,7 @@ var AICommitCmd = &cobra.Command{
 		commitArgs := formatCommitMessage(commitMsg, isGithub)
 		execCommand("git", commitArgs...)
 		successLog("Committed with AI-generated message.")
-		execCommand("git", "push", "--set-upstream", "origin", version)
+		execCommand("git", "push")
 		successLog("Pushed to remote repository.")
 	},
 }
