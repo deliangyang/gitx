@@ -50,9 +50,10 @@ export WORKSPACE_DIR=~/my_workspace
 
 使用 AI 助手生成提交信息，并将更改推送到远程仓库。
 确保已设置 `OPENAI_API_KEY` 环境变量。
+提示词有两种，一种是 [default](./commands/prompts/default.prompt)，另一外一种是比较详细的 [github](./commands/prompts/github.prompt)。
 
 ```bash
-gitx am   # 交互式确认提交
+gitx am [default|github]  # 交互式确认提交
 
 OPENAI_API_KEY="your_openai_api_key" gitx am    # 交互式确认提交
 
@@ -124,6 +125,15 @@ gitx use
 
 ```bash
 gitx install
+```
+
+## config 命令
+查看和修改 gitx 配置：
+
+```bash
+gitx config # 生成默认配置文件，并存储在 ~/.gitx/config.json 中
+gitx config view               # 查看当前配置
+gitx config set <key> <value>  # 设置配置项
 ```
 
 ## doc 命令
