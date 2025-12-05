@@ -66,6 +66,7 @@ var ConfigCmd = &cobra.Command{
 			}
 			fmt.Println(configJSON)
 			successLog("Configuration written to %s", storePath)
+			return
 		}
 		switch args[0] {
 		case "view":
