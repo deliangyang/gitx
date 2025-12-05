@@ -53,9 +53,13 @@ var ConfigCmd = &cobra.Command{
 				if err := os.MkdirAll(dirname, 0755); err != nil {
 					errLog("failed to create config directory: %v", err)
 				}
-			} else {
+			}
+			_, err := os.Stat(storePath)
+			if err == nil {
 				successLog("config directory %s already exists", storePath)
 				return
+			} else if !os.IsNotExist(err) {
+				errLog("failed to stat config file: %v", err)
 			}
 			if err := os.WriteFile(storePath, []byte(configJSON), 0644); err != nil {
 				errLog("failed to write config file: %v", err)
