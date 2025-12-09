@@ -13,8 +13,9 @@ import (
 )
 
 var (
-	aiConfirm bool
-	autoAdd   bool
+	aiConfirm   bool
+	autoAdd     bool
+	limitLength int
 )
 
 //go:embed prompts/github.prompt
@@ -23,11 +24,10 @@ var githubPrompt string
 //go:embed prompts/default.prompt
 var defaultPrompt string
 
-var limitedLen = 10000
-
 func init() {
 	AICommitCmd.Flags().BoolVarP(&aiConfirm, "yes", "y", false, "Auto confirm AI generated commit message")
 	AICommitCmd.Flags().BoolVarP(&autoAdd, "add", "a", false, "Auto git add . before generating commit message")
+	AICommitCmd.Flags().IntVarP(&limitLength, "limit", "l", 10000, "Set the maximum length of git diff to be processed")
 }
 
 var AICommitCmd = &cobra.Command{
@@ -49,8 +49,8 @@ var AICommitCmd = &cobra.Command{
 				warningLog("use `git add .` first")
 			}
 			errLog("No changes detected.")
-		} else if len(diff) > limitedLen {
-			warningLog(fmt.Sprintf("diff is too large (>%d characters), please commit manually", limitedLen))
+		} else if len(diff) > limitLength {
+			warningLog(fmt.Sprintf("diff is too large (>%d characters), please commit manually", limitLength))
 			errLog("Diff too large.")
 		}
 		sp := defaultPrompt
