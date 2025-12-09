@@ -32,7 +32,7 @@ func init() {
 
 var AICommitCmd = &cobra.Command{
 	Use:       "am [default|github]",
-	Short:     fmt.Sprintf("Generate AI-based commit messages, then push to remote, limit to %d characters diff", limitedLen),
+	Short:     "Generate AI-based commit messages, then push to remote",
 	ValidArgs: []string{"default", "github"},
 	Run: func(cmd *cobra.Command, args []string) {
 		if os.Getenv("OPENAI_API_KEY") == "" {
