@@ -7,15 +7,18 @@ import (
 	"log"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/openai/openai-go/v3"
 	"github.com/spf13/cobra"
+	"google.golang.org/genai"
 )
 
 var (
 	aiConfirm   bool
 	autoAdd     bool
 	limitLength int
+	aiAgent     string
 )
 
 //go:embed prompts/github.prompt
@@ -28,6 +31,7 @@ func init() {
 	AICommitCmd.Flags().BoolVarP(&aiConfirm, "yes", "y", false, "Auto confirm AI generated commit message")
 	AICommitCmd.Flags().BoolVarP(&autoAdd, "add", "a", false, "Auto git add . before generating commit message")
 	AICommitCmd.Flags().IntVarP(&limitLength, "limit", "l", 10000, "Set the maximum length of git diff to be processed")
+	AICommitCmd.Flags().StringVarP(&aiAgent, "agent", "", "openai", "Set the AI agent to use (openai|gemini)")
 }
 
 var AICommitCmd = &cobra.Command{
@@ -60,19 +64,15 @@ var AICommitCmd = &cobra.Command{
 			isGithub = true
 		}
 		userMessage := "以下是 git diff 内容：\n" + diff
-		client := openai.NewClient() // defaults to os.LookupEnv("OPENAI_API_KEY")
-		chatCompletion, err := client.Chat.Completions.New(context.Background(), openai.ChatCompletionNewParams{
-			Messages: []openai.ChatCompletionMessageParamUnion{
-				openai.SystemMessage(sp),
-				openai.UserMessage("正文内容一律使用中文"),
-				openai.UserMessage(userMessage),
-			},
-			Model: openai.ChatModelGPT5_1,
-		})
-		if err != nil {
-			errLog("OpenAI API error: %v", err)
+		var commitMsg string
+		switch aiAgent {
+		case "openai":
+			commitMsg = openAI(sp, userMessage)
+		case "gemini":
+			commitMsg = gemini(sp, userMessage)
+		default:
+			errLog("Unsupported AI agent: %s", aiAgent)
 		}
-		commitMsg := strings.TrimSpace(chatCompletion.Choices[0].Message.Content)
 		log.Println(commitMsg)
 
 		if !aiConfirm {
@@ -93,6 +93,55 @@ var AICommitCmd = &cobra.Command{
 		execCommand("git", "push")
 		successLog("Pushed to remote repository.")
 	},
+}
+
+func gemini(systemPrompt string, userMessage string) string {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*60)
+	defer cancel()
+	apiKey := os.Getenv("GEMINI_API_KEY")
+	if apiKey == "" {
+		errLog("GEMINI_API_KEY environment variable is not set.")
+	}
+	client, err := genai.NewClient(ctx, &genai.ClientConfig{
+		APIKey:  apiKey,
+		Backend: genai.BackendGeminiAPI,
+	})
+	if err != nil {
+		errLog("Failed to create Gemini client: %v", err)
+	}
+	chat, err := client.Chats.Create(ctx, "gemini-2.5-flash", &genai.GenerateContentConfig{Temperature: genai.Ptr[float32](0.5)}, nil)
+	if err != nil {
+		errLog("Gemini API error: %v", err)
+	}
+	result, err := chat.SendMessage(ctx, genai.Part{
+		Text: systemPrompt,
+	}, genai.Part{
+		Text: "正文内容一律使用中文",
+	}, genai.Part{
+		Text: userMessage,
+	})
+	if err != nil {
+		errLog("Gemini API error: %v", err)
+	}
+	commitMsg := strings.TrimSpace(result.Text())
+	return commitMsg
+}
+
+func openAI(systemPrompt string, userMessage string) string {
+	client := openai.NewClient() // defaults to os.LookupEnv("OPENAI_API_KEY")
+	chatCompletion, err := client.Chat.Completions.New(context.Background(), openai.ChatCompletionNewParams{
+		Messages: []openai.ChatCompletionMessageParamUnion{
+			openai.SystemMessage(systemPrompt),
+			openai.UserMessage("正文内容一律使用中文"),
+			openai.UserMessage(userMessage),
+		},
+		Model: openai.ChatModelGPT5_1,
+	})
+	if err != nil {
+		errLog("OpenAI API error: %v", err)
+	}
+	commitMsg := strings.TrimSpace(chatCompletion.Choices[0].Message.Content)
+	return commitMsg
 }
 
 func formatCommitMessage(commitMsg string, isGithub bool) []string {
