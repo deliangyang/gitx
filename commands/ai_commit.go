@@ -14,6 +14,7 @@ import (
 
 var (
 	aiConfirm bool
+	autoAdd   bool
 )
 
 //go:embed prompts/github.prompt
@@ -26,6 +27,7 @@ var limitedLen = 10000
 
 func init() {
 	AICommitCmd.Flags().BoolVarP(&aiConfirm, "yes", "y", false, "Auto confirm AI generated commit message")
+	AICommitCmd.Flags().BoolVarP(&autoAdd, "add", "a", false, "Auto git add . before generating commit message")
 }
 
 var AICommitCmd = &cobra.Command{
@@ -37,9 +39,15 @@ var AICommitCmd = &cobra.Command{
 			warningLog("OPENAI_API_KEY environment variable is not set.")
 			return
 		}
+		if autoAdd {
+			execCommand("git", "add", ".")
+			successLog("Auto git add . executed.")
+		}
 		diff := execCommandWithOutput("git", "diff", "--cached")
 		if diff == "" {
-			warningLog("use `git add .` first")
+			if !autoAdd {
+				warningLog("use `git add .` first")
+			}
 			errLog("No changes detected.")
 		} else if len(diff) > limitedLen {
 			warningLog(fmt.Sprintf("diff is too large (>%d characters), please commit manually", limitedLen))
@@ -79,6 +87,9 @@ var AICommitCmd = &cobra.Command{
 		commitArgs := formatCommitMessage(commitMsg, isGithub)
 		execCommand("git", commitArgs...)
 		successLog("Committed with AI-generated message.")
+		// pull first, auto merge
+		execCommand("git", "pull", "--no-edit")
+		// then push
 		execCommand("git", "push")
 		successLog("Pushed to remote repository.")
 	},
