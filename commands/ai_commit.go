@@ -100,7 +100,7 @@ func gemini(systemPrompt string, userMessage string) string {
 	defer cancel()
 	apiKey := os.Getenv("GEMINI_API_KEY")
 	if apiKey == "" {
-		errLog("GEMINI_API_KEY environment variable is not set.")
+		errLog("GEMINI_API_KEY environment variable is not set. https://aistudio.google.com/app/api-keys")
 	}
 	client, err := genai.NewClient(ctx, &genai.ClientConfig{
 		APIKey:  apiKey,
