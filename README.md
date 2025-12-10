@@ -1,15 +1,16 @@
+[中文](./README-cn.md)
 
 ## gitx
 
-一个用于简化 Git 工作流程的命令行工具，集成了 AI 助手以生成提交信息。
+A command-line tool to simplify Git workflows, integrated with an AI assistant for generating commit messages.
 
-## 首次安装
+## First-time Installation
 
 ```bash
 go install github.com/deliangyang/gitx@latest
 ```
 
-## 功能
+## Features
 
 ```
 A CLI tool for advanced Git operations.
@@ -39,110 +40,110 @@ Flags:
 Use "gitx [command] --help" for more information about a command.
 ```
 
-## 设置工作目录
+## Setting Up Workspace Directory
 
-设置环境变量 `WORKSPACE_DIR`，指定工作目录，默认为 `~/work`。
+Set the `WORKSPACE_DIR` environment variable to specify your workspace directory (default: `~/work`).
 
 ```bash
 export WORKSPACE_DIR=~/my_workspace
 ```
 
-## am 命令
+## am Command
 
-使用 AI 助手生成提交信息，并将更改推送到远程仓库。
-确保已设置 `OPENAI_API_KEY` 环境变量。
-提示词有两种，一种是 [default](./commands/prompts/default.prompt)，另一外一种是比较详细的 [github](./commands/prompts/github.prompt)。
+Use AI assistant to generate commit messages and push changes to remote repository.
+Make sure you have set the `OPENAI_API_KEY` environment variable.
+There are two types of prompts: one is [default](./commands/prompts/default.prompt), and the other is more detailed [github](./commands/prompts/github.prompt).
 
 ```bash
-gitx am [default|github]  # 交互式确认提交
+gitx am [default|github]  # Interactive commit confirmation
 
-OPENAI_API_KEY="your_openai_api_key" gitx am    # 交互式确认提交
+OPENAI_API_KEY="your_openai_api_key" gitx am    # Interactive commit confirmation
 
-OPENAI_API_KEY="your_openai_api_key" gitx am -y # 自动确认提交
+OPENAI_API_KEY="your_openai_api_key" gitx am -y # Auto-confirm commit
 ```
 
-## clone 命令
-克隆指定的 Git 仓库，并切换到指定的分支。
+## clone Command
+Clone a specified Git repository and switch to the specified branch.
 
 ```bash
 gitx clone <repository_url> <version> <branch> [-b <base_branch>]
 ```
-例如：
+Example:
 
 ```bash
-gitx clone git@github.com:deliangyang/gitx.git feat-3.4.0 new-dev              # 默认分支 main
-gitx clone git@github.com:deliangyang/gitx.git feat-3.4.0 new-dev -b main      # 指定源分支 main
+gitx clone git@github.com:deliangyang/gitx.git feat-3.4.0 new-dev              # Default branch main
+gitx clone git@github.com:deliangyang/gitx.git feat-3.4.0 new-dev -b main      # Specify source branch main
 ``` 
 
-## sync 命令
-基于当前目录的特征 (deliangyang-gitx-feat-3.4.0-new-dev)，将指定的 feat 分支合并到目标分支。
+## sync Command
+Based on current directory pattern (deliangyang-gitx-feat-3.4.0-new-dev), merge the specified feat branch into target branch.
 
 ```bash
 gitx sync
 ```
-例如，将 feat-3.4.0 分支合并到 new-dev 分支。
+For example, merge feat-3.4.0 branch into new-dev branch.
 
-## fetch 命令
+## fetch Command
 
-基于当前目录的特征 (deliangyang-gitx-feat-3.4.0-new-dev)，将稳定分支合并到当前的 feat 分支。
-
-```bash
-gitx fetch                      # 默认分支 main
-
-gitx fetch -b main              # 指定源分支 main
-```
-
-## select 命令
-选择常用项目进行克隆。
+Based on current directory pattern (deliangyang-gitx-feat-3.4.0-new-dev), merge stable branch into current feat branch.
 
 ```bash
-gitx select                     # 使用默认分支 main
-gitx select -b main             # 指定源分支 main
+gitx fetch                      # Default branch main
+
+gitx fetch -b main              # Specify source branch main
 ```
 
-## rename 命令
+## select Command
+Select common projects to clone.
 
-重命名当前项目目录，重置新的版本号
+```bash
+gitx select                     # Use default branch main
+gitx select -b main             # Specify source branch main
+```
+
+## rename Command
+
+Rename current project directory and reset the new version number.
 
 ```bash
 pwd
 # deliangyang-gitx-feat-1.2.0-new-dev
-gitx rename feat-1.3.0    # 当前版本为 feat-1.2.0，则重命名为 feat-1.3.0
+gitx rename feat-1.3.0    # Current version feat-1.2.0 will be renamed to feat-1.3.0
 
 pwd
 # deliangyang-gitx-feat-1.3.0-new-dev
 ```
 
-## use 命令
+## use Command
 
-切换到工作区中的特定项目目录。
+Switch to a specific project directory in workspace.
 
 ```bash
 gitx use
 ```
 
-## install 命令
-更新 gitx 工具到最新版本：
+## install Command
+Update gitx tool to latest version:
 
 ```bash
 gitx install
 ```
 
-## config 命令
-查看和修改 gitx 配置：
+## config Command
+View and modify gitx configuration:
 
 ```bash
-gitx config # 生成默认配置文件，并存储在 ~/.gitx/config.json 中
-gitx config view               # 查看当前配置
-gitx config set <key> <value>  # 设置配置项
+gitx config # Generate default config file and store it in ~/.gitx/config.json
+gitx config view               # View current configuration
+gitx config set <key> <value>  # Set configuration item
 ```
 
-## doc 命令
+## doc Command
 
-显示文档链接：[https://github.com/deliangyang/gitx/blob/main/README.md](https://github.com/deliangyang/gitx/blob/main/README.md)
+Display documentation link: [https://github.com/deliangyang/gitx/blob/main/README.md](https://github.com/deliangyang/gitx/blob/main/README.md)
 
-## 版本
-查看当前工具的版本：
+## Version
+View current tool version:
 
 ```bash
 gitx --version
