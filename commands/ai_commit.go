@@ -39,10 +39,6 @@ var AICommitCmd = &cobra.Command{
 	Short:     "Generate AI-based commit messages, then push to remote",
 	ValidArgs: []string{"default", "github"},
 	Run: func(cmd *cobra.Command, args []string) {
-		if os.Getenv("OPENAI_API_KEY") == "" {
-			warningLog("OPENAI_API_KEY environment variable is not set.")
-			return
-		}
 		if autoAdd {
 			execCommand("git", "add", ".")
 			successLog("Auto git add . executed.")
@@ -128,6 +124,9 @@ func gemini(systemPrompt string, userMessage string) string {
 }
 
 func openAI(systemPrompt string, userMessage string) string {
+	if os.Getenv("OPENAI_API_KEY") == "" {
+		errLog("OPENAI_API_KEY environment variable is not set.")
+	}
 	client := openai.NewClient() // defaults to os.LookupEnv("OPENAI_API_KEY")
 	chatCompletion, err := client.Chat.Completions.New(context.Background(), openai.ChatCompletionNewParams{
 		Messages: []openai.ChatCompletionMessageParamUnion{
