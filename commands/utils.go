@@ -26,7 +26,7 @@ var (
 
 func openByIDEA(repoPath string) {
 	sort.Slice(ideas, func(i, j int) bool {
-		return ideas[i] == config.DefaultIDE || ideas[j] == config.DefaultIDE
+		return ideas[i] != config.DefaultIDE && ideas[j] != config.DefaultIDE
 	})
 	openPrompt := promptui.Select{
 		Label: "Open project in IDEA?",

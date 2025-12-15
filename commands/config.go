@@ -167,6 +167,10 @@ func init() {
 
 	regexpProject = regexp.MustCompile(`((` + strings.Join(prefix, "|") + `)-[^-]+)-(.+)$`)
 
+	if config.DefaultIDE == "" {
+		config.DefaultIDE = "code"
+	}
+
 }
 
 func loadConfig() {
