@@ -28,6 +28,7 @@ Available Commands:
   fetch       Merge main branch into current feat branch, like merge main into feat-3.4.0
   help        Help about any command
   install     Install gitx tool
+  mb          Merge current branch back to other branch
   rename      Rename current project directory
   select      Select common projects to clone, like `gitx select` or `gitx select -b main`
   sync        Merge feat branch into target branch, like merge feat-3.4.0 into new-dev
@@ -91,6 +92,26 @@ Based on current directory pattern (deliangyang-gitx-feat-3.4.0-new-dev), merge 
 gitx fetch                      # Default branch main
 
 gitx fetch -b main              # Specify source branch main
+```
+
+## mb Command
+
+Merge current branch back to other branch. This command will:
+1. Switch to the target branch
+2. Pull latest changes from remote
+3. Merge current branch into target branch using `--no-ff` flag
+4. Push changes to remote
+5. Switch back to the original branch
+
+```bash
+gitx mb <target_branch>
+```
+
+Example:
+
+```bash
+gitx mb main                    # Merge current branch back to main
+gitx mb develop                 # Merge current branch back to develop
 ```
 
 ## select Command
