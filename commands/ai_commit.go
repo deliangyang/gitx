@@ -27,11 +27,14 @@ var githubPrompt string
 //go:embed prompts/default.prompt
 var defaultPrompt string
 
+var excludeFiles []string
+
 func init() {
 	AICommitCmd.Flags().BoolVarP(&aiConfirm, "yes", "y", false, "Auto confirm AI generated commit message")
 	AICommitCmd.Flags().BoolVarP(&autoAdd, "add", "a", false, "Auto git add . before generating commit message")
 	AICommitCmd.Flags().IntVarP(&limitLength, "limit", "l", 10000, "Set the maximum length of git diff to be processed")
 	AICommitCmd.Flags().StringVarP(&aiAgent, "agent", "", "openai", "Set the AI agent to use (openai|gemini)")
+	AICommitCmd.Flags().StringSliceVarP(&excludeFiles, "exclude", "e", []string{}, "Comma-separated list of files to exclude from git diff")
 }
 
 var AICommitCmd = &cobra.Command{
@@ -41,6 +44,11 @@ var AICommitCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		if autoAdd {
 			execCommand("git", "add", ".")
+			if len(excludeFiles) > 0 {
+				for _, file := range excludeFiles {
+					execCommand("git", "reset", file)
+				}
+			}
 			successLog("Auto git add . executed.")
 		}
 		diff := execCommandWithOutput("git", "diff", "--cached")
