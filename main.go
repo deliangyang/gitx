@@ -26,6 +26,7 @@ func main() {
 	rootCmd.AddCommand(commands.AICommitCmd)
 	rootCmd.AddCommand(commands.InstallCmd)
 	rootCmd.AddCommand(commands.RenameCmd)
+	rootCmd.AddCommand(commands.MergeBackCmd)
 	rootCmd.AddCommand(commands.UseCmd)
 	rootCmd.AddCommand(commands.DocCmd)
 	rootCmd.Version = version
