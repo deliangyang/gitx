@@ -21,7 +21,7 @@ var (
 
 var (
 	isDebug = os.Getenv("DEBUG") == "true"
-	ideas   = []string{"code", "goland", "pstorm", "no"}
+	ideas   = []string{"code", "cursor", "goland", "pstorm", "no"}
 )
 
 func openByIDEA(repoPath string) {
