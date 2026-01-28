@@ -91,10 +91,15 @@ var AICommitCmd = &cobra.Command{
 		commitArgs := formatCommitMessage(commitMsg, isGithub)
 		execCommand("git", commitArgs...)
 		successLog("Committed with AI-generated message.")
+		currentBranch := execCommandWithOutput("git", "rev-parse", "--abbrev-ref", "HEAD")
+		cur := strings.TrimSpace(currentBranch)
 		// pull first, auto merge
-		execCommand("git", "pull", "--no-edit")
-		// then push
-		execCommand("git", "push")
+		if branchExists(".", cur) {
+			execCommand("git", "pull", "--no-edit")
+			execCommand("git", "push")
+		} else {
+			execCommand("git", "push", "--set-upstream", "origin", cur)
+		}
 		successLog("Pushed to remote repository.")
 	},
 }
