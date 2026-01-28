@@ -108,6 +108,10 @@ func branchExists(repoPath, branch string) bool {
 	if output != "" {
 		return true
 	}
-	output = execCommandWithOutput("git", "-C", repoPath, "ls-remote", "--heads", "origin", branch)
+	return remoteBranchExists(repoPath, branch)
+}
+
+func remoteBranchExists(repoPath, branch string) bool {
+	output := execCommandWithOutput("git", "-C", repoPath, "ls-remote", "--heads", "origin", branch)
 	return output != ""
 }

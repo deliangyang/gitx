@@ -94,7 +94,7 @@ var AICommitCmd = &cobra.Command{
 		currentBranch := execCommandWithOutput("git", "rev-parse", "--abbrev-ref", "HEAD")
 		cur := strings.TrimSpace(currentBranch)
 		// pull first, auto merge
-		if branchExists(".", cur) {
+		if remoteBranchExists(".", cur) {
 			execCommand("git", "pull", "--no-edit")
 			execCommand("git", "push")
 		} else {
