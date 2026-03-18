@@ -19,6 +19,7 @@ var (
 	autoAdd     bool
 	limitLength int
 	aiAgent     string
+	version     string
 )
 
 //go:embed prompts/github.prompt
@@ -35,6 +36,7 @@ func init() {
 	AICommitCmd.Flags().IntVarP(&limitLength, "limit", "l", 10000, "Set the maximum length of git diff to be processed")
 	AICommitCmd.Flags().StringVarP(&aiAgent, "agent", "", "openai", "Set the AI agent to use (openai|gemini)")
 	AICommitCmd.Flags().StringSliceVarP(&excludeFiles, "exclude", "e", []string{}, "Comma-separated list of files to exclude from git diff")
+	AICommitCmd.Flags().StringVarP(&version, "version", "v", "", "Set the version for the commit message")
 }
 
 var AICommitCmd = &cobra.Command{
@@ -89,6 +91,9 @@ var AICommitCmd = &cobra.Command{
 			}
 		}
 		commitArgs := formatCommitMessage(commitMsg, isGithub)
+		if version != "" {
+			commitArgs = append(commitArgs, "-m", fmt.Sprintf("version: %s", version))
+		}
 		execCommand("git", commitArgs...)
 		successLog("Committed with AI-generated message.")
 		currentBranch := execCommandWithOutput("git", "rev-parse", "--abbrev-ref", "HEAD")
