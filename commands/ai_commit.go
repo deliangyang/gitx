@@ -3,8 +3,11 @@ package commands
 import (
 	"context"
 	_ "embed"
+	"encoding/json"
 	"fmt"
+	"io"
 	"log"
+	"net/http"
 	"os"
 	"strings"
 	"time"
@@ -14,11 +17,59 @@ import (
 	"google.golang.org/genai"
 )
 
+// 转义 JSON 字符串，防止特殊字符导致 JSON 格式错误
+func escapeJSONString(s string) string {
+	b, _ := json.Marshal(s)
+	return string(b[1 : len(b)-1])
+}
+
+// ollama 调用本地 API，默认模型 qwen3.5:4b
+func ollama(systemPrompt string, userMessage string, model string) string {
+	if model == "" {
+		model = "qwen3.5:4b"
+	}
+	payload := `{"model":"` + model + `","messages":[{"role":"system","content":"` + escapeJSONString(systemPrompt) + `"},{"role":"user","content":"正文内容一律使用中文"},{"role":"user","content":"` + escapeJSONString(userMessage) + `"}]}`
+	resp, err := ollamaPost("http://localhost:11434/v1/chat", payload)
+	if err != nil {
+		errLog("Ollama API error: %v", err)
+	}
+	return strings.TrimSpace(resp)
+}
+
+func ollamaPost(url, payload string) (string, error) {
+	req, err := http.NewRequest("POST", url, strings.NewReader(payload))
+	if err != nil {
+		return "", err
+	}
+	req.Header.Set("Content-Type", "application/json")
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "", err
+	}
+	type ollamaResp struct {
+		Message struct {
+			Content string `json:"content"`
+		} `json:"message"`
+	}
+	var r ollamaResp
+	if err := json.Unmarshal(body, &r); err != nil {
+		return "", err
+	}
+	return r.Message.Content, nil
+}
+
 var (
 	aiConfirm   bool
 	autoAdd     bool
 	limitLength int
 	aiAgent     string
+	ollamaModel string
 	version     string
 )
 
@@ -34,7 +85,8 @@ func init() {
 	AICommitCmd.Flags().BoolVarP(&aiConfirm, "yes", "y", false, "Auto confirm AI generated commit message")
 	AICommitCmd.Flags().BoolVarP(&autoAdd, "add", "a", false, "Auto git add . before generating commit message")
 	AICommitCmd.Flags().IntVarP(&limitLength, "limit", "l", 10000, "Set the maximum length of git diff to be processed")
-	AICommitCmd.Flags().StringVarP(&aiAgent, "agent", "", "openai", "Set the AI agent to use (openai|gemini)")
+	AICommitCmd.Flags().StringVarP(&aiAgent, "agent", "", "openai", "Set the AI agent to use (openai|gemini|ollama)")
+	AICommitCmd.Flags().StringVarP(&ollamaModel, "ollama-model", "", "qwen3.5:4b", "Set the Ollama model name (default: qwen3.5:4b)")
 	AICommitCmd.Flags().StringSliceVarP(&excludeFiles, "exclude", "e", []string{}, "Comma-separated list of files to exclude from git diff")
 	AICommitCmd.Flags().StringVarP(&version, "version", "v", "", "Set the version for the commit message")
 }
@@ -63,6 +115,7 @@ var AICommitCmd = &cobra.Command{
 			warningLog(fmt.Sprintf("diff is too large (>%d characters), please commit manually", limitLength))
 			errLog("Diff too large.")
 		}
+
 		sp := defaultPrompt
 		var isGithub bool
 		if len(args) > 0 && args[0] == "github" {
@@ -76,6 +129,8 @@ var AICommitCmd = &cobra.Command{
 			commitMsg = openAI(sp, userMessage)
 		case "gemini":
 			commitMsg = gemini(sp, userMessage)
+		case "ollama":
+			commitMsg = ollama(sp, userMessage, ollamaModel)
 		default:
 			errLog("Unsupported AI agent: %s", aiAgent)
 		}
