@@ -29,7 +29,7 @@ func ollama(systemPrompt string, userMessage string, model string) string {
 		model = "qwen3.5:4b"
 	}
 	payload := `{"model":"` + model + `","messages":[{"role":"system","content":"` + escapeJSONString(systemPrompt) + `"},{"role":"user","content":"正文内容一律使用中文"},{"role":"user","content":"` + escapeJSONString(userMessage) + `"}]}`
-	resp, err := ollamaPost("http://localhost:11434/v1/chat", payload)
+	resp, err := ollamaPost("http://localhost:11434/api/chat", payload)
 	if err != nil {
 		errLog("Ollama API error: %v", err)
 	}
@@ -48,9 +48,34 @@ func ollamaPost(url, payload string) (string, error) {
 		return "", err
 	}
 	defer resp.Body.Close()
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return "", err
+	// Ollama /api/chat 返回流式 NDJSON，每行一个 JSON
+	var lastLine string
+	buf := make([]byte, 4096)
+	var lines []string
+	for {
+		n, err := resp.Body.Read(buf)
+		if n > 0 {
+			chunk := string(buf[:n])
+			for _, line := range strings.Split(chunk, "\n") {
+				line = strings.TrimSpace(line)
+				if line != "" {
+					lines = append(lines, line)
+				}
+			}
+		}
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			return "", err
+		}
+	}
+	if len(lines) == 0 {
+		return "", fmt.Errorf("ollama: empty response")
+	}
+	lastLine = lines[len(lines)-1]
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		return "", fmt.Errorf("ollama http %d: %s", resp.StatusCode, lastLine)
 	}
 	type ollamaResp struct {
 		Message struct {
@@ -58,7 +83,7 @@ func ollamaPost(url, payload string) (string, error) {
 		} `json:"message"`
 	}
 	var r ollamaResp
-	if err := json.Unmarshal(body, &r); err != nil {
+	if err := json.Unmarshal([]byte(lastLine), &r); err != nil {
 		return "", err
 	}
 	return r.Message.Content, nil
